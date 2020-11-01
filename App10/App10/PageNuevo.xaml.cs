@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SQLite;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,8 +21,13 @@ namespace App10
         private void Guardar(object sender, EventArgs e)
         {
             App.Persona nuevaPersona = new App.Persona() { Nombre = txtNombre.Text, Correo = txtCorreo.Text };
-            App.Personas.Add(nuevaPersona);
-            Navigation.PopAsync();
+            //App.Personas.Add(nuevaPersona);
+            using (var conn = new SQLiteConnection(App.RUTABD))
+            {
+                conn.Insert(nuevaPersona);
+            }
+
+                Navigation.PopAsync();
         }
 
         private void Cancelar(object sender, EventArgs e)

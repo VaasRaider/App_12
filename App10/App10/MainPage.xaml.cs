@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SQLite;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -21,7 +22,14 @@ namespace App10
 
         public void Actualizar()
         {
-            lstPersonas.ItemsSource = App.Personas.OrderBy(n => n.Nombre).ToList();
+            var conn = new SQLiteConnection(App.RUTABD);
+            conn.CreateTable<App.Persona>();
+            App.Personas = conn.Table<App.Persona>().OrderBy(n => n.Nombre).ToList();
+            lstPersonas.ItemsSource = conn.Table<App.Persona>().OrderBy(n => n.Nombre).ToList();
+            //lstPersonas.ItemsSource = conn.Table<App.Persona>().OrderBy(n => n.Nombre).ToList();
+
+            conn.Close();
+            //lstPersonas.ItemsSource = App.Personas.OrderBy(n => n.Nombre).ToList();
 
         }
         public void verificar()
@@ -72,8 +80,18 @@ protected override void OnAppearing()
 
         private void cmdLimpiar(object sender, EventArgs e)
         {
-            App.Personas.RemoveAll(n => n.Nombre == App.temp_nombre);
-            lstPersonas.ItemsSource = App.Personas.OrderBy(n => n.Nombre).ToList();
+            App.Persona nuevaPersona = new App.Persona() { Id = App.temp_Id, Nombre = App.temp_nombre, Correo = App.temp_correo };
+            using (var conn = new SQLiteConnection(App.RUTABD))
+            {
+ 
+                    conn.Delete(nuevaPersona);
+                
+
+
+            }
+            Actualizar();
+            //App.Personas.RemoveAll(n => n.Nombre == App.temp_nombre);
+            //lstPersonas.ItemsSource = App.Personas.OrderBy(n => n.Nombre).ToList();
             App.press = false;
             verificar();
             
@@ -84,6 +102,7 @@ protected override void OnAppearing()
             App.press = true;
             var personaSeleccionada = e.SelectedItem as App.Persona;
             verificar();
+            App.temp_Id = personaSeleccionada.Id;
             App.temp_nombre = personaSeleccionada.Nombre;
             App.temp_correo = personaSeleccionada.Correo;
             App.press = false;
@@ -93,7 +112,7 @@ protected override void OnAppearing()
         {
             Navigation.PushAsync(new PageEditar()
             {
-                BindingContext = new App.Persona() { Nombre = App.temp_nombre, Correo = App.temp_correo }
+                BindingContext = new App.Persona() { Id = App.temp_Id, Nombre = App.temp_nombre, Correo = App.temp_correo }
             });
             
 

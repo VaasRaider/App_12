@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SQLite;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,9 +19,20 @@ namespace App10
 
         private void Guardar(object sender, EventArgs e)
         {
-            App.Personas.RemoveAll(n => n.Nombre == App.temp_nombre);
-            App.Persona nuevaPersona = new App.Persona() { Nombre = txtNombre.Text, Correo = txtCorreo.Text };
-            App.Personas.Add(nuevaPersona);
+            //App.Personas.RemoveAll(n => n.Nombre == App.temp_nombre);
+            App.Persona nuevaPersona = new App.Persona() { Id= App.temp_Id, Nombre = txtNombre.Text, Correo = txtCorreo.Text };
+            //App.Personas.Add(nuevaPersona);
+            using (var conn = new SQLiteConnection(App.RUTABD))
+            {
+                if (nuevaPersona.Id > 0)
+                {
+                    conn.Update(nuevaPersona);
+                }
+                else 
+                { conn.Insert(nuevaPersona); }
+                    
+
+            }
             Navigation.PopAsync();
         }
 
